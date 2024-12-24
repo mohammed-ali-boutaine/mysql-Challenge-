@@ -1,0 +1,176 @@
+## require , require_one , include , include_once
+
+### 1. include
+
+Fonction : Inclut et exécute un fichier PHP.
+Comportement en cas d'erreur : Si le fichier à inclure est introuvable, PHP émet un warning et continue l'exécution du script.
+Usage typique : Utilisé lorsque l'absence du fichier n'est pas critique pour le fonctionnement du script.
+
+### 2.require
+
+Fonction : Inclut et exécute un fichier PHP.
+Comportement en cas d'erreur : Si le fichier à inclure est introuvable, PHP émet une erreur fatale (fatal error) et stoppe l'exécution du script.
+Usage typique : Utilisé lorsque le fichier est essentiel au bon fonctionnement du script.
+
+### 3.include_once
+
+Fonction : Identique à include, mais vérifie si le fichier a déjà été inclus.
+Comportement : Si le fichier a déjà été inclus précédemment, il ne sera pas inclus une seconde fois.
+Usage typique : Utile pour éviter les inclusions multiples qui pourraient causer des erreurs (comme des redéfinitions de fonctions ou de classes).
+
+### 4.require_once
+
+Résumé des différences principales :
+Instruction Stoppe l'exécution si le fichier est introuvable ? Évite les inclusions multiples ?
+include Non Non
+require Oui Non
+include_once Non Oui
+require_once Oui Oui
+
+### **Quand les utiliser ?**
+
+Utilisez require ou require_once pour des fichiers essentiels, comme des configurations ou des dépendances critiques.
+Utilisez include ou include_once pour des fichiers optionnels ou moins critiques, comme des templates de mise en page.
+
+# Connexion à une base de donnée
+
+## procédural :
+### conxion a la base de donnee
+```php
+
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "example_db";
+
+// Création de la connexion
+$conn = mysqli_connect($servername, $username, $password, $dbname);
+
+// Vérification de la connexion
+if (!$conn) {
+    die("Échec de la connexion : " . mysqli_connect_error());
+}
+echo "Connexion réussie !";
+```
+### Requêtes préparées
+```php
+
+$sql = "SELECT * FROM users WHERE email = ?";
+$stmt = mysqli_prepare($conn, $sql);
+mysqli_stmt_bind_param($stmt, "s", $email);
+$email = "example@example.com";
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+while ($row = mysqli_fetch_assoc($result)) {
+    print_r($row);
+}
+mysqli_stmt_close($stmt);
+```
+### Techniques de récupération de données (Data Fetching)
+
+
+1. mysqli_fetch_assoc()
+Récupère une ligne de résultat sous forme de tableau associatif (les clés correspondent aux noms des colonnes).
+Usage : Lorsqu'on travaille avec des noms de colonnes spécifiques.
+```php
+while ($row = mysqli_fetch_assoc($result)) {
+    echo $row['nom'];
+}
+```
+2. mysqli_fetch_array()
+Récupère une ligne de résultat sous forme de tableau associatif ou numérique.
+Usage : Lorsque vous voulez accéder aux colonnes par nom ou par index.
+Exemple :
+```php
+while ($row = mysqli_fetch_array($result, MYSQLI_BOTH)) {
+    echo $row['nom']; // Associatif
+    echo $row[0];     // Numérique
+}
+```
+
+3. mysqli_fetch_row()
+Récupère une ligne sous forme de tableau indexé numériquement.
+Usage : Lorsqu’on préfère accéder aux données par leur position (moins lisible).
+Exemple :
+```php
+while ($row = mysqli_fetch_row($result)) {
+    echo $row[0]; // Premier champ
+}
+```
+4. mysqli_fetch_all()
+Récupère toutes les lignes du résultat sous forme de tableau multidimensionnel.
+Usage : Pratique pour obtenir tous les résultats d’un coup.
+Exemple :
+```php
+$rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+foreach ($rows as $row) {
+    print_r($row);
+}
+```
+
+Quand utiliser chaque méthode ?
+Méthode	Usage recommandé
+mysqli_fetch_assoc	Lorsque vous souhaitez travailler avec les noms des colonnes.
+mysqli_fetch_array	Lorsque vous avez besoin d’un accès à la fois associatif et numérique.
+mysqli_fetch_row	Lorsque vous travaillez avec des index numériques pour une meilleure performance.
+mysqli_fetch_all	Lorsque vous voulez récupérer toutes les données d’un seul coup pour un traitement global.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## POO :
+### conxoin a la base de donnee
+```php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "example_db";
+
+// Création de la connexion
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Vérification de la connexion
+if ($conn->connect_error) {
+    die("Échec de la connexion : " . $conn->connect_error);
+}
+echo "Connexion réussie !";
+
+```
+### Requêtes préparées
+```php 
+$stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+$stmt->bind_param("s", $email); // 's' pour string
+$email = "example@example.com";
+$stmt->execute();
+$result = $stmt->get_result();
+while ($row = $result->fetch_assoc()) {
+    print_r($row);
+}
+$stmt->close();
+
+
+```
+
+
+### Techniques de récupération de données (Data Fetching)
